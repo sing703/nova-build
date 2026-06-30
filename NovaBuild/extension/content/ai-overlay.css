@@ -1,0 +1,205 @@
+#novabuild-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 300px;
+  min-width: 240px;
+  min-height: 180px;
+  background: #ffffff;
+  border: 1px solid #bfdbfe;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(37, 99, 235, 0.18);
+  z-index: 2147483646;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: #0f172a;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.3s ease;
+  animation: nbSlideIn 0.4s ease-out;
+}
+
+@keyframes nbSlideIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes nbPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(37, 99, 235, 0); }
+}
+
+#novabuild-panel.dragging {
+  box-shadow: 0 20px 60px rgba(37, 99, 235, 0.3);
+  opacity: 0.95;
+}
+
+#novabuild-panel.minimized .nb-body,
+#novabuild-panel.minimized .nb-resize-handle {
+  display: none;
+}
+
+#novabuild-panel .nb-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: white;
+  cursor: grab;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+#novabuild-panel .nb-header:active { cursor: grabbing; }
+
+#novabuild-panel .nb-title { color: white; }
+
+#novabuild-panel .nb-header button {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#novabuild-panel .nb-header button:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+#novabuild-panel .nb-body {
+  padding: 12px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+#novabuild-panel .nb-setup {
+  background: #e8f1ff;
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #bfdbfe;
+}
+
+#novabuild-panel .nb-setup.hidden { display: none; }
+
+#novabuild-panel .nb-setup-step {
+  font-size: 0.72rem;
+  color: #475569;
+  padding: 3px 0;
+  transition: color 0.3s;
+}
+
+#novabuild-panel .nb-setup-step.done { color: #2563eb; font-weight: 600; }
+
+#novabuild-panel .nb-greeting {
+  background: #dbeafe;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  border-left: 3px solid #2563eb;
+  color: #0f172a;
+  animation: nbSlideIn 0.3s ease-out;
+}
+
+#novabuild-panel .nb-greeting.hidden { display: none; }
+
+#novabuild-panel #nb-status {
+  font-size: 0.75rem;
+  color: #475569;
+  margin-bottom: 10px;
+}
+
+#novabuild-panel .nb-btn {
+  display: block;
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 9px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: #f0f6ff;
+  color: #0f172a;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+
+#novabuild-panel .nb-btn:hover {
+  background: #dbeafe;
+  transform: translateY(-1px);
+}
+
+#novabuild-panel .nb-btn.primary {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: white;
+  border: none;
+  font-weight: 700;
+}
+
+#novabuild-panel .nb-btn.primary:hover {
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
+}
+
+#novabuild-panel .pulse-btn {
+  animation: nbPulse 2s ease-in-out infinite;
+}
+
+#novabuild-panel .nb-code-panel {
+  margin-top: 8px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  overflow: hidden;
+  animation: nbSlideIn 0.3s ease-out;
+}
+
+#novabuild-panel .nb-code-panel.hidden { display: none; }
+
+#novabuild-panel .nb-code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: #e8f1ff;
+  font-size: 0.7rem;
+  color: #0f172a;
+  border-bottom: 1px solid #bfdbfe;
+}
+
+#novabuild-panel .nb-tool-tag {
+  background: #2563eb;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.6rem;
+}
+
+#novabuild-panel .nb-code-content {
+  font-family: 'Cascadia Code', Consolas, monospace;
+  font-size: 0.65rem;
+  padding: 8px;
+  margin: 0;
+  max-height: 140px;
+  overflow: auto;
+  background: #f8fafc;
+  color: #0f172a;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+#novabuild-panel .nb-resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  cursor: se-resize;
+  background: linear-gradient(135deg, transparent 50%, #93c5fd 50%);
+  border-radius: 0 0 14px 0;
+}

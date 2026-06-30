@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NovaBuild</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <div class="logo">⚡ NovaBuild</div>
+    <span id="bridge-dot" class="dot offline" title="Bridge status"></span>
+  </header>
+
+  <section class="status-card">
+    <div class="row">
+      <span>Bridge</span>
+      <strong id="bridge-status">Offline</strong>
+    </div>
+    <button id="start-bridge-help" class="link-btn">How to start bridge</button>
+  </section>
+
+  <section>
+    <h2>Connect AI</h2>
+    <p class="hint">Log into the AI site in your browser first, then connect below.</p>
+
+    <div class="ai-card" data-provider="deepseek">
+      <div class="ai-info">
+        <span class="ai-name">DeepSeek</span>
+        <span class="badge recommended">Easiest</span>
+      </div>
+      <div class="ai-actions">
+        <button class="btn-open" data-url="https://chat.deepseek.com">Open</button>
+        <button class="btn-connect">Connect</button>
+      </div>
+      <span class="ai-status">Not connected</span>
+    </div>
+
+    <div class="ai-card" data-provider="chatgpt">
+      <div class="ai-info">
+        <span class="ai-name">ChatGPT</span>
+      </div>
+      <div class="ai-actions">
+        <button class="btn-open" data-url="https://chatgpt.com">Open</button>
+        <button class="btn-connect">Connect</button>
+      </div>
+      <span class="ai-status">Not connected</span>
+    </div>
+
+    <div class="ai-card" data-provider="arena">
+      <div class="ai-info">
+        <span class="ai-name">Arena.ai</span>
+        <span class="badge hard">Harder</span>
+      </div>
+      <div class="ai-actions">
+        <button class="btn-open" data-url="https://arena.ai">Open</button>
+        <button class="btn-connect">Connect</button>
+      </div>
+      <span class="ai-status">Not connected</span>
+    </div>
+  </section>
+
+  <section class="setup-section">
+    <h2>Setup</h2>
+    <select id="active-provider">
+      <option value="deepseek">DeepSeek</option>
+      <option value="chatgpt">ChatGPT</option>
+      <option value="arena">Arena.ai</option>
+    </select>
+    <button id="setup-btn" class="btn-primary">Setup AI Link</button>
+    <button id="start-building-btn" class="btn-accent">🚀 Start Building</button>
+  </section>
+
+  <footer>
+    <button id="open-studio" class="btn-secondary">Open Build Studio</button>
+  </footer>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="popup.js"></script>
+</body>
+</html>

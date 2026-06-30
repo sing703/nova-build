@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NovaBuild Studio</title>
+  <link rel="stylesheet" href="studio.css">
+</head>
+<body>
+  <header class="fade-in">
+    <div class="brand">
+      <span class="logo-icon">⚡</span>
+      <h1>NovaBuild Studio</h1>
+    </div>
+    <span id="bridge-badge" class="badge offline pulse">Bridge Offline</span>
+  </header>
+
+  <nav class="tabs slide-in">
+    <button class="tab active" data-tab="projects">Projects</button>
+    <button class="tab" data-tab="preview">Live Play</button>
+    <button class="tab" data-tab="architect">Code Architect</button>
+    <button class="tab" data-tab="publish">Publish</button>
+    <button class="tab" data-tab="github">GitHub</button>
+  </nav>
+
+  <main>
+    <section id="tab-projects" class="tab-panel active fade-in">
+      <div class="card">
+        <h2>New Project</h2>
+        <div class="toolbar">
+          <input id="project-name" placeholder="Project name" />
+          <select id="project-type">
+            <option value="web">Website</option>
+            <option value="game">Game</option>
+          </select>
+          <button id="create-project" class="btn-primary">Create</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Your Projects</h2>
+        <ul id="project-list"></ul>
+      </div>
+    </section>
+
+    <section id="tab-preview" class="tab-panel">
+      <div class="card">
+        <h2>Live Play — Unpublished Preview</h2>
+        <p class="hint">Play your app instantly while building. No publish needed.</p>
+        <select id="preview-project"></select>
+        <div class="btn-row">
+          <button id="play-btn" class="btn-primary">▶ Play Now</button>
+          <button id="refresh-preview" class="btn-secondary">↻ Refresh</button>
+          <button id="capture-btn" class="btn-secondary">📸 Capture</button>
+        </div>
+      </div>
+      <div class="preview-frame-wrap card">
+        <iframe id="preview-frame" title="Live preview" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+        <div id="preview-placeholder" class="preview-placeholder">
+          <span>Select a project and click Play Now</span>
+        </div>
+      </div>
+      <img id="preview-img" class="capture-img hidden" alt="Last capture" />
+    </section>
+
+    <section id="tab-architect" class="tab-panel">
+      <div class="architect-layout">
+        <div class="card architect-sidebar">
+          <h2>Architecture</h2>
+          <select id="architect-project"></select>
+          <ul id="file-tree" class="file-tree"></ul>
+        </div>
+        <div class="card architect-main">
+          <div class="architect-header">
+            <span id="architect-file-label">Select a file</span>
+            <span id="architect-tool-label" class="tool-badge"></span>
+          </div>
+          <div id="activity-feed" class="activity-feed"></div>
+          <pre id="code-view" class="code-view"><code>// AI code changes appear here in real-time</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-publish" class="tab-panel">
+      <div class="card">
+        <h2>Publish</h2>
+        <p class="hint">Local preview uses safe localhost links. For Roblox, deploy to GitHub Pages.</p>
+        <select id="publish-project"></select>
+        <input id="publish-slug" placeholder="Custom slug (optional)" />
+        <div class="btn-row">
+          <button id="publish-btn" class="btn-primary">Publish Local</button>
+          <button id="publish-roblox-btn" class="btn-accent">🎮 Roblox-Safe (GitHub Pages)</button>
+        </div>
+        <div id="publish-result" class="result-box"></div>
+      </div>
+    </section>
+
+    <section id="tab-github" class="tab-panel">
+      <div class="card">
+        <h2>GitHub Connection</h2>
+        <input id="gh-username" placeholder="GitHub username" />
+        <input id="gh-token" type="password" placeholder="GitHub token (repo scope)" />
+        <button id="gh-connect" class="btn-primary">Connect GitHub</button>
+        <hr />
+        <select id="gh-project"></select>
+        <input id="gh-repo" placeholder="owner/repo" />
+        <button id="gh-push" class="btn-secondary">Push to GitHub</button>
+        <div id="gh-status" class="result-box"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="studio.js"></script>
+</body>
+</html>
