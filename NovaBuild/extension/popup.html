@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body {
+      width: 260px; margin: 0;
+      font-family: "Segoe UI", ui-sans-serif, sans-serif;
+      background: linear-gradient(160deg, #0a1628 0%, #0f172a 55%, #0c1220 100%);
+      color: #e2e8f0;
+    }
+    .wrap { padding: 14px; }
+    h1 { font-size: 14px; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; color: #f1f5f9; }
+    .logo { color: #00d4aa; text-shadow: 0 0 10px rgba(0,212,170,0.4); }
+    .badge {
+      font-size: 8px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+      color: #041018; background: linear-gradient(135deg, #00d4aa, #0ea5e9);
+      padding: 2px 7px; border-radius: 4px;
+      font-family: ui-monospace, monospace;
+    }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: #475569; }
+    .dot.on { background: #00d4aa; box-shadow: 0 0 8px #00d4aa; }
+    .dot.warn { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+    .row { font-size: 12px; margin: 6px 0; color: #94a3b8; }
+    button {
+      width: 100%; margin-top: 8px; padding: 8px; border: 0; border-radius: 8px;
+      cursor: pointer; font-size: 12px; font-weight: 600;
+    }
+    .primary {
+      background: linear-gradient(135deg, #00d4aa, #0ea5e9);
+      color: #041018;
+    }
+    .ghost { background: rgba(255,255,255,0.06); color: #e2e8f0; border: 1px solid rgba(14,165,233,0.35); }
+    code { background: rgba(0,0,0,0.35); padding: 1px 5px; border-radius: 4px; color: #38bdf8; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1><span id="dot" class="dot"></span> <span class="logo">◈</span> Nova <span class="badge">Studio</span></h1>
+    <div class="row" id="state">Novaect: …</div>
+    <div class="row" id="tools"></div>
+    <div class="row" id="servers" style="white-space:pre-line; font-family:ui-monospace,monospace; opacity:0.85"></div>
+    <button class="ghost" id="reconnect">↻ Reconnect Novaect</button>
+    <button class="ghost" id="restart">⟳ Restart Roblox MCP</button>
+    <div class="row" style="margin-top:10px; opacity:0.75">
+      Run <code>start-novaect.bat</code>, keep it open, open Roblox Studio with MCP enabled.
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

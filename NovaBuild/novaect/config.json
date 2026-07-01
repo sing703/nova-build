@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "roblox": {
+      "command": "launch_studio_mcp.py",
+      "args": []
+    }
+  },
+  "_readme": "Add MCP servers here — Novaect auto-starts and aggregates all of them. Example: npx-based servers work on Windows via cmd.exe shim."
+}

@@ -1,0 +1,694 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+/* overlay.css - Nova OP-Scripter in-page UI. Scoped under #nv-root / .nv-* */
+
+#nv-root {
+  position: fixed;
+  z-index: 2147483600;
+  font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ── status bar: dark glass + cyan accent (Nova Studio) ──── */
+#nv-bar {
+  position: fixed;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  padding: 8px 12px 8px 14px;
+  background: linear-gradient(135deg, rgba(8, 14, 24, 0.94) 0%, rgba(12, 22, 38, 0.92) 100%);
+  color: #e2e8f0;
+  border: 1px solid rgba(14, 165, 233, 0.45);
+  border-radius: 14px;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 212, 170, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px);
+  font-size: 12px;
+  user-select: none;
+}
+#nv-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 170, 0.06), transparent);
+  animation: nv-shimmer 4s ease-in-out infinite;
+}
+@keyframes nv-shimmer {
+  0%, 100% { opacity: 0.3; transform: translateX(-30%); }
+  50% { opacity: 0.7; transform: translateX(30%); }
+}
+
+/* In-flow mode: the bar is a real, full-width node in the composer layout that
+   pushes content down instead of floating. Two looks:
+   • default (mounted ABOVE the input box, e.g. Gemini) → a subtle surface card so
+     it reads as a panel and doesn't float in empty space;
+   • .nv-bar-inside (mounted INSIDE the input box, e.g. DeepSeek) → transparent
+     with just a divider, so it blends into the composer surface it lives in. */
+#nv-bar.nv-bar-inline {
+  position: static;
+  width: 100%;
+  left: auto; top: auto;
+  margin: 0 0 8px;
+  box-sizing: border-box;
+  background: rgba(8, 14, 24, 0.88);
+  border: 1px solid rgba(14, 165, 233, 0.35);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
+  padding: 7px 12px;
+}
+html.nv-light #nv-bar.nv-bar-inline {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(14, 165, 233, 0.35);
+  color: #1f2430;
+}
+#nv-bar.nv-bar-inline.nv-bar-inside {
+  margin: 0 0 6px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(14, 165, 233, 0.25);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 4px 16px 10px;
+}
+html.nv-light #nv-bar.nv-bar-inline.nv-bar-inside {
+  background: transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Anchored mode: the bar keeps position:fixed (it must NOT enter the site's
+   framework-managed composer DOM, e.g. Kimi's Vue subtree) but the core sizes
+   and positions it to hug the composer's top edge at full width, with reserved
+   padding on the composer so it reads as in-flow. Transparent like the
+   .nv-bar-inside look, so it blends into the composer surface. */
+#nv-bar.nv-bar-anchored {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(14, 165, 233, 0.25);
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  padding: 9px 16px;
+}
+html.nv-light #nv-bar.nv-bar-anchored {
+  background: transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Per-site tuning. On Gemini the default system stack looked foreign next to
+   Google Sans, and weight 700 read heavy - match the host for a native feel.
+   DeepSeek is left exactly as-is (it already blends well). */
+#nv-bar.nv-prov-gemini {
+  font-family: "Google Sans Text", "Google Sans", Roboto, ui-sans-serif, -apple-system, "Segoe UI", sans-serif;
+}
+#nv-bar.nv-prov-gemini #nv-brand,
+#nv-bar.nv-prov-gemini #nv-action,
+#nv-bar.nv-prov-gemini #nv-state b { font-weight: 500; }
+
+#nv-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; cursor: help; position: relative; z-index: 1; }
+#nv-dot.on { background: #00d4aa; box-shadow: 0 0 10px #00d4aa; }
+#nv-dot.warn { background: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
+#nv-dot.off { background: #475569; }
+
+.nv-logo {
+  color: #00d4aa;
+  font-size: 14px;
+  margin-right: 2px;
+  text-shadow: 0 0 12px rgba(0, 212, 170, 0.5);
+}
+#nv-brand { font-weight: 700; letter-spacing: 0.4px; flex: none; font-size: 12.5px; color: #f1f5f9; position: relative; z-index: 1; }
+.nv-badge {
+  font-size: 8px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+  color: #0a1628; background: linear-gradient(135deg, #00d4aa 0%, #0ea5e9 100%);
+  border: 1px solid rgba(0, 212, 170, 0.6);
+  padding: 2px 7px; border-radius: 4px; vertical-align: middle;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+}
+
+/* provider instability warning (Gemini / Kimi): a small amber chip; click it for
+   the full explanation (it's also the title tooltip). */
+#nv-unstable {
+  flex: none; cursor: pointer; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.3px; white-space: nowrap;
+  color: #fbbf24; background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  padding: 2px 7px; border-radius: 6px; line-height: 1.3;
+  transition: background 0.15s ease;
+}
+#nv-unstable:hover { background: rgba(251, 191, 36, 0.22); }
+
+/* state line: takes the slack, single line, ellipsis if it can't fit */
+#nv-state {
+  flex: 1; min-width: 0;
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11.5px; line-height: 1.3; opacity: 0.92;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  color: #94a3b8;
+  position: relative; z-index: 1;
+}
+.nv-state-txt { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: #94a3b8; }
+#nv-state b { font-weight: 700; opacity: 1; color: #38bdf8; }
+#nv-state.nv-state-warn { opacity: 1; color: #fca5a5; }
+#nv-state.nv-state-warn b { color: #f87171; }
+#nv-bar.tone-active #nv-state b { color: #00d4aa; }
+
+/* live + idle dots inside the state line */
+.nv-live-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: #34d399; flex: none;
+  box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6);
+  animation: nv-live 1.8s ease-out infinite;
+}
+@keyframes nv-live {
+  0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55); }
+  100% { box-shadow: 0 0 0 7px rgba(52, 211, 153, 0); }
+}
+.nv-live-dot.idle { background: #9ca3af; animation: none; box-shadow: none; }
+
+/* primary action button (Start / New session / New chat) */
+#nv-action {
+  flex: none;
+  padding: 7px 14px;
+  border-radius: 10px; border: 1px solid transparent;
+  font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
+  transition: filter 0.15s ease, transform 0.12s ease;
+  position: relative; z-index: 1;
+}
+#nv-action[data-kind="start"] {
+  background: linear-gradient(135deg, #00d4aa 0%, #0ea5e9 100%);
+  color: #041018; border-color: rgba(0, 212, 170, 0.5);
+  box-shadow: 0 2px 16px rgba(14, 165, 233, 0.35);
+}
+#nv-action[data-kind="start"]:hover { filter: brightness(1.1); transform: translateY(-1px); }
+#nv-action[data-kind="new-session"],
+#nv-action[data-kind="new-chat"] {
+  background: rgba(255, 255, 255, 0.08); color: #e2e8f0;
+  border-color: rgba(14, 165, 233, 0.35); font-weight: 600;
+}
+#nv-action[data-kind="new-session"]:hover,
+#nv-action[data-kind="new-chat"]:hover { background: rgba(255, 255, 255, 0.14); }
+#nv-action:disabled {
+  background: rgba(71, 85, 105, 0.35); color: rgba(226, 232, 240, 0.45);
+  border-color: rgba(71, 85, 105, 0.4); box-shadow: none; cursor: not-allowed;
+}
+/* attention flash when the user sends on a fresh chat without starting */
+#nv-action.nv-flash { animation: nv-flash 0.4s ease-in-out 3; }
+@keyframes nv-flash {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.6); }
+}
+
+/* stop button (replaces the action button while the agent is busy) */
+#nv-stop {
+  flex: none; padding: 7px 13px;
+  background: #ef4444; color: #fff; border: 0; border-radius: 9px;
+  font-size: 12.5px; font-weight: 700; cursor: pointer; white-space: nowrap;
+}
+#nv-stop:hover { background: #dc2626; }
+/* Winding-down state: the loop is finishing its in-flight step after a Stop
+   click. Dimmed + not-allowed so it reads as "registered, please wait". */
+#nv-stop[data-state="stopping"] {
+  background: #b45309; cursor: progress; opacity: 0.85;
+}
+#nv-stop[data-state="stopping"]:hover { background: #b45309; }
+
+/* Discord button (always visible in the bar) */
+#nv-discord {
+  flex: none; width: 28px; height: 28px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(88, 101, 242, 0.15); color: #a5b4fc;
+  border: 1px solid rgba(88, 101, 242, 0.4); border-radius: 8px;
+  cursor: pointer; text-decoration: none;
+  transition: background 0.15s ease, filter 0.15s ease;
+}
+#nv-discord:hover { background: rgba(88, 101, 242, 0.28); filter: brightness(1.1); }
+
+/* the "more" (⋯) button */
+#nv-more {
+  flex: none; width: 28px; height: 28px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255, 255, 255, 0.06); color: #c7d2fe;
+  border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 8px;
+  font-size: 16px; line-height: 1; cursor: pointer;
+  transition: background 0.15s ease;
+}
+#nv-more:hover { background: rgba(255, 255, 255, 0.14); }
+
+/* ── the "more" menu popover (right/bottom set inline) ────────────────────── */
+#nv-menu {
+  position: fixed;
+  box-sizing: border-box;
+  width: 264px; overflow-y: auto;
+  padding: 10px;
+  background: rgba(14, 14, 20, 0.98);
+  color: #e8e8ec;
+  border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px);
+  font-size: 12px;
+  animation: nv-pop 0.16s ease-out;
+}
+@keyframes nv-pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+/* discreet dark scrollbar (default white one looks out of place) */
+#nv-menu { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.22) transparent; }
+#nv-menu::-webkit-scrollbar { width: 8px; }
+#nv-menu::-webkit-scrollbar-track { background: transparent; }
+#nv-menu::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.18); border-radius: 8px;
+  border: 2px solid transparent; background-clip: padding-box;
+}
+#nv-menu::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.30); background-clip: padding-box; }
+html.nv-light #nv-menu { scrollbar-color: rgba(0,0,0,0.25) transparent; }
+html.nv-light #nv-menu::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); background-clip: padding-box; }
+.nv-menu-sec { padding: 4px 0 10px; }
+.nv-menu-sec + .nv-menu-sec { border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px; }
+.nv-menu-h { font-size: 11px; font-weight: 700; opacity: 0.85; margin-bottom: 7px; }
+.nv-menu-note { font-size: 10px; opacity: 0.55; line-height: 1.4; margin-bottom: 7px; }
+.nv-toolbox-hint code { font-size: 9px; padding: 1px 4px; border-radius: 4px; background: rgba(0, 212, 170, 0.12); color: #00d4aa; }
+.nv-toggle-row {
+  display: flex; align-items: center; gap: 10px; cursor: pointer;
+  padding: 10px 12px; border-radius: 10px;
+  background: rgba(0, 212, 170, 0.08); border: 1px solid rgba(0, 212, 170, 0.25);
+  font-size: 12px; font-weight: 600; color: #e2e8f0; margin-bottom: 6px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.nv-toggle-row:hover { background: rgba(0, 212, 170, 0.14); border-color: rgba(0, 212, 170, 0.4); }
+.nv-toggle-row input[type="checkbox"] {
+  width: 16px; height: 16px; accent-color: #00d4aa; cursor: pointer; flex: none;
+}
+html.nv-light .nv-toggle-row { background: rgba(14, 165, 233, 0.08); border-color: rgba(14, 165, 233, 0.3); color: #1f2430; }
+html.nv-light .nv-toolbox-hint code { background: rgba(14, 165, 233, 0.12); color: #0369a1; }
+
+.nv-site-opt {
+  width: 100%; box-sizing: border-box; margin: 4px 0; padding: 8px 10px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px;
+  background: rgba(129, 140, 248, 0.12); color: #c7d2fe;
+  font-size: 12px; font-weight: 600; cursor: pointer; text-align: left;
+  transition: filter 0.15s ease, background 0.15s ease;
+}
+button.nv-site-opt:hover { background: rgba(129, 140, 248, 0.24); filter: brightness(1.1); }
+.nv-site-go { font-size: 10px; font-weight: 700; opacity: 0.7; }
+.nv-site-here { background: rgba(255, 255, 255, 0.05); color: #9ca3af; cursor: default; }
+.nv-site-badge {
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;
+  color: #34d399; background: rgba(52, 211, 153, 0.14);
+  border: 1px solid rgba(52, 211, 153, 0.35); padding: 1px 5px; border-radius: 5px;
+}
+
+#nv-set-text {
+  width: 100%; box-sizing: border-box; resize: vertical; min-height: 58px;
+  background: rgba(0, 0, 0, 0.35); color: #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 8px;
+  padding: 7px 9px; font-size: 12px; font-family: inherit; line-height: 1.4;
+}
+#nv-set-text:focus { outline: none; border-color: rgba(129, 140, 248, 0.6); }
+.nv-set-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+#nv-set-save {
+  background: rgba(129, 140, 248, 0.18); color: #c7d2fe;
+  border: 1px solid rgba(129, 140, 248, 0.4); border-radius: 8px;
+  padding: 5px 14px; font-size: 12px; font-weight: 700; cursor: pointer;
+  transition: filter 0.15s ease, background 0.15s ease;
+}
+#nv-set-save:hover { background: rgba(129, 140, 248, 0.3); filter: brightness(1.1); }
+#nv-set-status { font-size: 11px; color: #34d399; font-weight: 600; }
+
+.nv-tip-opt {
+  width: 100%; margin: 4px 0; padding: 7px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px;
+  font-size: 12px; font-weight: 600; cursor: pointer; text-align: left;
+  transition: filter 0.15s ease, background 0.15s ease;
+}
+.nv-tip-opt:hover { filter: brightness(1.12); }
+.nv-tip-rbx {
+  background: rgba(129, 140, 248, 0.14); color: #c7d2fe;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nv-tip-sep {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+  opacity: 0.45; margin: 8px 0 6px; text-align: center;
+}
+/* ── composer mode enforcement (force Expert / DeepThink etc.) ────────────── */
+.nv-hide-el { display: none !important; }
+
+/* ── input cover: fully hides the text the extension types + sends ──
+   background colour is set inline at runtime to match the input box,
+   so the masked input simply looks empty. */
+#nv-input-cover {
+  position: fixed; z-index: 2147483500;
+  display: flex; align-items: center; gap: 8px;
+  box-sizing: border-box; padding-left: 16px;
+  border-radius: 14px;
+  background: #ffffff;
+  color: rgba(140, 140, 150, 0.9);
+  font-size: 12px; font-family: ui-sans-serif, "Segoe UI", sans-serif;
+  white-space: nowrap; overflow: hidden;
+  pointer-events: none;
+}
+
+/* belt-and-suspenders: the typed text itself is rendered invisible
+   (DeepSeek's composer is a <textarea>; the Kimi build used a contenteditable) */
+textarea.nv-typing,
+div[contenteditable='true'].nv-typing,
+div[contenteditable='true'].nv-typing * { color: transparent !important; }
+textarea.nv-typing,
+div[contenteditable='true'].nv-typing { caret-color: transparent !important; }
+
+/* ── spinner element ───────────────────────────────────────── */
+.nv-spin {
+  width: 12px; height: 12px; flex: none; display: inline-block;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: #818cf8;
+  border-radius: 50%;
+  animation: nv-rot 0.7s linear infinite;
+}
+.nv-spin.big { width: 26px; height: 26px; border-width: 3px; }
+@keyframes nv-rot { to { transform: rotate(360deg); } }
+
+/* ── tool cards (replace tool JSON / sys prompt / results) ──────── */
+.nv-hidden > *:not(.nv-chip) { display: none !important; }
+/* hide the code block / paragraph(s) containing the raw tool call */
+.nv-tool-hide { display: none !important; }
+/* Gemini: Angular recreates the <code-block> elements inside a reply (once at
+   the end-of-stream markdown settle, once again when the next turn is sent),
+   wiping any per-element .nv-tool-hide class - the raw command flashes until
+   the next sweep. <message-content> itself keeps its identity through those
+   re-renders (validated live, 2026-06), so the provider marks IT with
+   .nv-cmd-mask and this rule keeps every recreated code-block hidden with no
+   flash. Inert on DeepSeek (no such elements). */
+message-content.nv-cmd-mask code-block { display: none !important; }
+/* GLM / Z.ai (Svelte): the reply's markdown subtree is recreated on stream
+   updates and on the next send, wiping any per-element .nv-tool-hide class. The
+   reply root (.chat-assistant) keeps its identity, so the provider marks IT with
+   .nv-cmd-mask and this rule keeps every recreated code-block wrapper (a
+   rounded-xl box carrying a copy-code button) hidden with no flash. Inert
+   elsewhere. */
+.chat-assistant.nv-cmd-mask div[class*="rounded-xl"]:has(.copy-code-button) { display: none !important; }
+/* Kimi (Vue): the reply's markdown subtree is recreated on stream updates,
+   wiping any per-element .nv-tool-hide class. The assistant turn
+   (.segment-assistant) keeps its identity, so the provider marks IT with
+   .nv-cmd-mask and this rule keeps every recreated fenced-code wrapper
+   (.segment-code) hidden with no flash. Inert elsewhere. */
+.segment-assistant.nv-cmd-mask .segment-code { display: none !important; }
+/* Qwen (React + Ant Design): the reply markdown subtree is recreated on stream
+   updates. The assistant turn (.qwen-chat-message-assistant) keeps its identity,
+   so the provider marks IT with .nv-cmd-mask and this rule re-hides recreated
+   Monaco code blocks (pre.qwen-markdown-code) with no flash. Inert elsewhere. */
+.qwen-chat-message-assistant.nv-cmd-mask pre.qwen-markdown-code { display: none !important; }
+/* Arena (arena.ai, React): React recreates the reply's rendered code subtree on
+   stream settle and on the next send, wiping any per-element .nv-tool-hide class.
+   The assistant turn <div> keeps its identity (the chip is anchored at item
+   level), so the provider marks IT with .nv-cmd-mask and this rule keeps every
+   recreated fenced-code wrapper (a .not-prose box holding a <pre>) hidden with no
+   flash. Inert elsewhere. */
+.nv-cmd-mask div.not-prose:has(pre) { display: none !important; }
+
+/* Qwen (Ant Design) renders its model / thinking-mode select popups at z-index
+   1150 - far below #nv-root (2147483600) - so the Nova bar covered the open
+   menu (the "Fast / Auto / Think" dropdown vanished behind the bar). The popup is
+   portalled to <body>, so raising its z-index above the bar lifts it back on top.
+   Inert when the menu is closed (Ant adds .ant-select-dropdown-hidden ⇒ display:none). */
+.qwen-select-dropdown { z-index: 2147483646 !important; }
+
+/* category accent colour (left stripe + icon tint) */
+.nv-chip.cat-roblox   { --cat: #818cf8; }
+.nv-chip.cat-read     { --cat: #38bdf8; }
+.nv-chip.cat-edit     { --cat: #a78bfa; }
+.nv-chip.cat-screen   { --cat: #34d399; }
+.nv-chip.cat-generate { --cat: #f472b6; }
+.nv-chip.cat-tool     { --cat: #818cf8; }
+
+.nv-chip {
+  --cat: #818cf8;
+  display: block; width: fit-content; max-width: 100%;
+  margin: 6px 0; padding: 0;
+  font-size: 13px; font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+  border-radius: 11px; line-height: 1.3;
+  background: color-mix(in srgb, var(--cat) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cat) 28%, transparent);
+  border-left: 3px solid var(--cat);
+  color: #e8eaf2;
+  overflow: hidden;
+  transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.nv-chip:hover { background: color-mix(in srgb, var(--cat) 14%, transparent); }
+
+.nv-chip-head {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 13px;
+}
+.nv-chip-ic {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; flex: none; color: var(--cat);
+}
+.nv-chip-ic svg { width: 16px; height: 16px; }
+.nv-chip-tx { font-weight: 600; letter-spacing: 0.1px; }
+.nv-chip-dt {
+  opacity: 0.6; font-size: 11px; margin-left: 2px; flex: 1;
+  font-family: ui-monospace, "Cascadia Code", "Cascadia Mono", monospace;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.nv-chip-dt:empty { display: none; }
+.nv-chip-cv {
+  display: inline-flex; flex: none; opacity: 0.45;
+  transition: transform 0.2s ease;
+}
+.nv-chip-cv svg { width: 15px; height: 15px; }
+.nv-chip.open .nv-chip-cv { transform: rotate(180deg); }
+
+/* expandable body: real args / output */
+.nv-chip-body {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.22s ease;
+  border-top: 1px solid transparent;
+}
+.nv-chip.open .nv-chip-body {
+  max-height: 460px; overflow: auto;
+  border-top-color: color-mix(in srgb, var(--cat) 20%, transparent);
+}
+.nv-chip-body pre {
+  margin: 0; padding: 10px 13px;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 12px; line-height: 1.5; color: #cdd2e0;
+  white-space: pre-wrap; word-break: break-word;
+}
+
+/* state themes (override category background, keep accent stripe) */
+.nv-chip.done   { --cat: #34d399; }
+.nv-chip.err    { --cat: #ef4444; color: #fde2e2; }
+.nv-chip.result { --cat: #94a3b8; }
+.nv-chip.sys    { --cat: #94a3b8; }
+
+/* running shimmer along the top accent */
+.nv-chip.run {
+  position: relative;
+  background-image: linear-gradient(90deg,
+    transparent, color-mix(in srgb, var(--cat) 22%, transparent), transparent);
+  background-size: 220% 100%;
+  animation: nv-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes nv-shimmer { 0% { background-position: 120% 0; } 100% { background-position: -120% 0; } }
+
+/* ── toast ─────────────────────────────────────────────────── */
+.nv-toast {
+  position: fixed; right: 18px; top: 80px;
+  max-width: 300px; padding: 9px 13px;
+  background: rgba(30, 30, 36, 0.96); color: #e8e8ec;
+  border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px;
+  font-size: 12px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  opacity: 0; transform: translateY(8px); transition: all 0.25s ease;
+}
+.nv-toast.show { opacity: 1; transform: translateY(0); }
+
+/* ── banner (errors / limits) ──────────────────────────────── */
+.nv-banner {
+  position: fixed; right: 18px; top: 18px; width: 320px;
+  padding: 14px 16px; border-radius: 12px;
+  background: rgba(24, 24, 28, 0.97); color: #f1f1f4;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.55);
+  font-size: 13px; z-index: 2147483601;
+}
+.nv-banner.limit { border-left: 4px solid #ef4444; }
+.nv-banner.warn { border-left: 4px solid #fbbf24; }
+.nv-banner-t { font-weight: 600; margin-bottom: 6px; }
+.nv-banner-m { opacity: 0.82; line-height: 1.45; margin-bottom: 12px; }
+.nv-banner-acts { display: flex; gap: 8px; }
+.nv-banner-acts button {
+  flex: 1; padding: 6px; border: 0; border-radius: 8px; cursor: pointer; font-size: 12px;
+}
+.nv-banner-new { background: #6366f1; color: #fff; }
+.nv-banner-new:hover { background: #4f46e5; }
+.nv-banner-x { background: rgba(255, 255, 255, 0.1); color: #e8e8ec; }
+.nv-banner-x:hover { background: rgba(255, 255, 255, 0.18); }
+/* Setup-tutorial link embedded in Novaect-lost banner (styled like a button,
+   sits in the actions row so it never overlaps the alert). */
+.nv-banner-video {
+  flex: 1; padding: 6px; border-radius: 8px; font-size: 12px; font-weight: 700;
+  text-align: center; text-decoration: none; box-sizing: border-box;
+  background: rgba(129, 140, 248, 0.15); color: #c7d2fe;
+  border: 1px solid rgba(129, 140, 248, 0.4); transition: background 0.15s ease;
+}
+.nv-banner-video:hover { background: rgba(129, 140, 248, 0.28); }
+
+/* ── first-time onboarding card (bridge missing; pinned top-right) ───────── */
+#nv-setup {
+  position: fixed;
+  top: 18px; right: 18px;
+  width: 282px;
+  padding: 14px 15px;
+  background: rgba(22, 22, 30, 0.98);
+  color: #e8e8ec;
+  border: 1px solid rgba(129, 140, 248, 0.45);
+  border-radius: 14px;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  font-size: 12px;
+  z-index: 2147483600;
+  animation: nv-pop 0.2s ease-out;
+}
+#nv-setup-title { font-weight: 700; font-size: 13px; margin-bottom: 5px; }
+#nv-setup-sub { opacity: 0.78; font-size: 11px; line-height: 1.45; margin-bottom: 10px; }
+#nv-setup-video {
+  display: block; width: 100%; padding: 8px; box-sizing: border-box;
+  background: rgba(129, 140, 248, 0.15); color: #c7d2fe;
+  border: 1px solid rgba(129, 140, 248, 0.4); border-radius: 8px;
+  font-size: 12px; font-weight: 700; text-align: center; text-decoration: none;
+  margin-bottom: 10px; transition: background 0.15s ease;
+}
+#nv-setup-video:hover { background: rgba(129, 140, 248, 0.28); }
+.nv-setup-copy-row { display: flex; gap: 6px; margin-bottom: 10px; }
+.nv-setup-copy-row input {
+  flex: 1; min-width: 0;
+  background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 7px; color: #c7d2fe; font-size: 10px;
+  padding: 5px 8px; font-family: ui-monospace, "Cascadia Mono", monospace;
+  outline: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+#nv-setup-copy {
+  background: rgba(129, 140, 248, 0.18); color: #c7d2fe;
+  border: 1px solid rgba(129, 140, 248, 0.4); border-radius: 7px;
+  padding: 5px 10px; font-size: 11px; font-weight: 700; cursor: pointer;
+  white-space: nowrap; transition: background 0.15s ease;
+}
+#nv-setup-copy:hover { background: rgba(129, 140, 248, 0.34); }
+#nv-setup-steps {
+  font-size: 11px; line-height: 1.7; opacity: 0.75;
+  margin-bottom: 11px; padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.04); border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+#nv-setup-dismiss {
+  width: 100%; padding: 7px; border-radius: 8px; border: 0;
+  background: rgba(255, 255, 255, 0.09); color: #cbd0e0;
+  font-size: 11px; font-weight: 600; cursor: pointer;
+  transition: background 0.15s ease;
+}
+#nv-setup-dismiss:hover { background: rgba(255, 255, 255, 0.18); }
+
+/* ── capture preview panel ─────────────────────────────────── */
+.nv-img-wrap {
+  position: fixed; left: 18px; top: 60px;
+  max-width: 420px; max-height: 70vh; overflow-y: auto;
+  background: rgba(18, 18, 22, 0.97);
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  z-index: 2147483601; padding: 0 0 8px;
+}
+.nv-img-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; font-size: 12px; font-weight: 600;
+  color: #c7d2fe; border-bottom: 1px solid rgba(255,255,255,0.08);
+  position: sticky; top: 0; background: rgba(18,18,22,0.97);
+}
+.nv-img-hdr button {
+  background: none; border: none; color: #94a3b8;
+  cursor: pointer; font-size: 14px; padding: 0 4px;
+}
+.nv-img-hdr button:hover { color: #e8e8ec; }
+.nv-img { display: block; width: 100%; padding: 8px 12px 0; box-sizing: border-box; border-radius: 8px; }
+
+/* ══════════════════════════════════════════════════════════════
+   LIGHT MODE
+   Toggled by core/main.js adding `.nv-light` to <html> when the host
+   page's effective background is light. Dark mode (the default) is
+   untouched.
+   ══════════════════════════════════════════════════════════════ */
+/* in-conversation tool/result/sys chips */
+html.nv-light .nv-chip {
+  color: #1e2430;
+  background: color-mix(in srgb, var(--cat) 15%, #ffffff);
+  border-color: color-mix(in srgb, var(--cat) 45%, #ffffff);
+}
+html.nv-light .nv-chip:hover { background: color-mix(in srgb, var(--cat) 24%, #ffffff); }
+html.nv-light .nv-chip-body pre { color: #2b313d; }
+html.nv-light .nv-chip-body { border-top-color: color-mix(in srgb, var(--cat) 30%, #ffffff); }
+html.nv-light .nv-chip.err { color: #7f1d1d; }
+html.nv-light .nv-chip.run {
+  background-image: linear-gradient(90deg,
+    transparent, color-mix(in srgb, var(--cat) 30%, #ffffff), transparent);
+}
+html.nv-light .nv-spin { border-color: rgba(0, 0, 0, 0.15); border-top-color: #6366f1; }
+
+/* status bar + menu + setup card */
+html.nv-light #nv-bar {
+  background: rgba(255, 255, 255, 0.97);
+  color: #1f2430;
+  border-color: rgba(99, 102, 241, 0.32);
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.16);
+}
+html.nv-light #nv-brand { color: #1f2430; }
+html.nv-light #nv-state { color: #4b5563; }
+html.nv-light #nv-state b { color: #4f46e5; }
+html.nv-light #nv-state.nv-state-warn { color: #b91c1c; }
+html.nv-light #nv-bar.tone-active #nv-state b { color: #059669; }
+html.nv-light #nv-more {
+  background: rgba(99, 102, 241, 0.10); color: #4f46e5;
+  border-color: rgba(99, 102, 241, 0.30);
+}
+html.nv-light #nv-more:hover { background: rgba(99, 102, 241, 0.18); }
+html.nv-light #nv-action[data-kind="new-session"],
+html.nv-light #nv-action[data-kind="new-chat"] {
+  background: rgba(0, 0, 0, 0.05); color: #374151; border-color: rgba(0, 0, 0, 0.10);
+}
+html.nv-light #nv-action[data-kind="new-session"]:hover,
+html.nv-light #nv-action[data-kind="new-chat"]:hover { background: rgba(0, 0, 0, 0.10); }
+html.nv-light #nv-action:disabled {
+  background: rgba(0, 0, 0, 0.05); color: rgba(0, 0, 0, 0.35); border-color: rgba(0, 0, 0, 0.08);
+}
+
+html.nv-light #nv-menu,
+html.nv-light #nv-setup {
+  background: rgba(249, 250, 253, 0.99);
+  color: #1f2430;
+  border-color: rgba(99, 102, 241, 0.30);
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.18);
+}
+html.nv-light .nv-menu-sec + .nv-menu-sec { border-top-color: rgba(0, 0, 0, 0.08); }
+html.nv-light .nv-menu-note { color: #6b7280; }
+html.nv-light #nv-set-text {
+  background: #ffffff; color: #1f2430; border-color: rgba(0, 0, 0, 0.16);
+}
+html.nv-light #nv-setup-sub,
+html.nv-light #nv-setup-steps { color: #4b5563; }
+html.nv-light #nv-setup-steps { background: rgba(0, 0, 0, 0.04); border-color: rgba(0, 0, 0, 0.07); }
+html.nv-light #nv-setup-dismiss { background: rgba(0, 0, 0, 0.05); color: #374151; }
+html.nv-light #nv-setup-dismiss:hover { background: rgba(0, 0, 0, 0.10); }
+
+/* Menu contents in light theme: the dark-theme text colors (pale lavender
+   #c7d2fe, pink #ff8fa3, green #34d399) wash out on the near-white menu, so
+   re-tint everything to darker, readable variants. */
+html.nv-light .nv-site-opt {
+  background: rgba(99, 102, 241, 0.10); color: #3730a3;
+  border-color: rgba(99, 102, 241, 0.28);
+}
+html.nv-light button.nv-site-opt:hover { background: rgba(99, 102, 241, 0.18); }
+html.nv-light .nv-site-here { background: rgba(0, 0, 0, 0.04); color: #6b7280; }
+html.nv-light .nv-menu-h { color: #1f2430; }
+html.nv-light #nv-set-save {
+  background: rgba(99, 102, 241, 0.14); color: #3730a3; border-color: rgba(99, 102, 241, 0.45);
+}
+html.nv-light #nv-set-save:hover { background: rgba(99, 102, 241, 0.24); }
+html.nv-light #nv-set-status { color: #059669; }
+html.nv-light .nv-tip-rbx { background: rgba(99, 102, 241, 0.10); color: #3730a3; }
+html.nv-light .nv-tip-sep { color: #6b7280; opacity: 0.9; }

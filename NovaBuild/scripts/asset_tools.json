@@ -1,0 +1,159 @@
+{
+  "search_asset": {
+    "description": "Searches for assets across Creator Store (public marketplace) and Creator Inventory (user/group/universe).\nUse this tool to find assets by keyword before inserting them with insert_asset.\nReturns a list of matching assets with metadata (name, type, source, price).\n\nScope controls where to search:\n- 'auto' (default): waterfalls through universe inventory \u2192 universe's owning group \u2192 user inventory \u2192 Creator Store. Best for general \"find me an X\" requests.\n- 'creator_store': searches only the marketplace. Use this when the user wants marketplace assets, paid assets, or when using price/creator filters.\n- 'user': searches the user's personal inventory only.\n- 'group': searches the universe's owning group by default. Pass groupId or groupName to search a different group instead. If the universe has no owning group and you don't pass a groupId, the response lists the user's groups so you can retry.\n- 'universe': searches the current universe's inventory only.\n\nTargeting a specific group: when the user names a particular group (\"in my group X\" / \"in group 12345\"), set scope='group' AND pass groupId or groupName to constrain to that one group. groupId/groupName are only valid with scope='group'; combining with any other scope (including 'auto') is rejected.\n\nResult attribution: each inventory result includes `creatorId` (string, the group or user ID that owns the asset) and `creatorName` (the group/user name when known). `creatorId` semantics depend on `source`: for source='inventory' coming from a group, it's the group ID.\n\nEvery scope='group' or scope='auto' response includes a `groups` field listing { id, name } for each of the user's groups (when the user has any). Use these to make a follow-up scope='group' + groupId call when the default (the universe's owning group, or the first relevant group) doesn't match what the user wants.\n\nEvery response also includes a `context` field describing the current Studio session: { userId, universeId, isPublished, creatorType ('User'/'Group' when published), creatorId, creatorName }. Use this to ground answers about which place is being edited and to disambiguate \"in my group\" requests.\n\nCross-owner inserts caution: when an inventory result's creatorId differs from context.creatorId (the place's owner), inserting it brings another owner's asset into this place. The user may have access to view the asset but might not intend or have the authority to share it across owners. Before calling insert_asset on a cross-owner result, name the source (the asset's creatorName) and the destination (context.creatorName or universe), and ask the user for explicit consent.\n\nWhen to use price filters: If the user asks for paid/premium assets or specifies a price range, set scope='creator_store' and use priceFilter, minPriceCents, and/or maxPriceCents. These filters only apply to Creator Store searches.\nWhen to use asset type: If the user asks for a specific asset type (audio, decals, meshes, packages, etc.), set assetType to filter results. The inventory API requires exactly one assetType per call and defaults to 'Model' when omitted, so cross-type discovery requires explicit assetType=Image / Audio / etc. Packages are stored as Models with a Package subtype \u2014 set assetType='Package' to find them (do not search for the word \"package\" as a query).\nInventory results (source='inventory') are always insertable. Creator Store results may occasionally be restricted \u2014 if insert fails, try the next result.\nEach result includes a thumbnailUrl (Roblox Thumbnails API). Fetch it to get JSON with data[0].imageUrl pointing to a CDN image of the asset \u2014 useful for visually comparing assets before inserting.\n",
+    "inputSchema": {
+      "properties": {
+        "assetType": {
+          "description": "Filter by asset type. Use 'Image' for user-uploaded images (most decals/textures uploaded today are stored as Image, not Decal). Use 'Package' when the user asks about packages \u2014 packages are Models with a Package subtype, so a keyword search for 'package' won't find them.",
+          "enum": [
+            "Model",
+            "Audio",
+            "Mesh",
+            "MeshPart",
+            "Image",
+            "Decal",
+            "Video",
+            "Package"
+          ],
+          "type": "string"
+        },
+        "audioMaxDuration": {
+          "description": "Maximum audio duration in seconds (only when assetType='Audio').",
+          "type": "number"
+        },
+        "audioMinDuration": {
+          "description": "Minimum audio duration in seconds (only when assetType='Audio').",
+          "type": "number"
+        },
+        "excludeSources": {
+          "description": "With scope='auto': skip these sources from the waterfall.",
+          "items": {
+            "enum": [
+              "user",
+              "group",
+              "universe",
+              "creator_store"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "facets": {
+          "description": "Additional keywords to refine the search (Creator Store only, ignored for inventory scopes). Facets narrow results by related concepts \u2014 e.g. for a 'lion' search: 'mane', 'safari', 'realistic', 'animated'. Available facets depend on the query.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "groupId": {
+          "description": "Numeric group ID to constrain group inventory searches to a single group. Only valid with scope='group'. Mutually exclusive with groupName.",
+          "type": "string"
+        },
+        "groupName": {
+          "description": "Group name to constrain group inventory searches to a single group. Matched case-insensitively against the user's groups. Only valid with scope='group'. If the name doesn't match any of the user's groups, the response includes a `groups` field listing valid options. Mutually exclusive with groupId.",
+          "type": "string"
+        },
+        "includeSources": {
+          "description": "With scope='auto': only search these sources (e.g. ['user', 'creator_store']).",
+          "items": {
+            "enum": [
+              "user",
+              "group",
+              "universe",
+              "creator_store"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "maxPriceCents": {
+          "description": "Maximum price in cents. Requires scope='creator_store'. Use with minPriceCents for a price range.",
+          "type": "number"
+        },
+        "maxResults": {
+          "description": "Number of results to return (1-20, default 5).",
+          "type": "number"
+        },
+        "minPriceCents": {
+          "description": "Minimum price in cents. Requires scope='creator_store'. Use with maxPriceCents for a price range (e.g. minPriceCents=100, maxPriceCents=5000).",
+          "type": "number"
+        },
+        "priceFilter": {
+          "description": "Price filter. Requires scope='creator_store'. 'free' returns only free assets, 'paid' returns only paid assets, 'all' (default) returns both.",
+          "enum": [
+            "free",
+            "paid",
+            "all"
+          ],
+          "type": "string"
+        },
+        "query": {
+          "description": "Search term. Can be empty when filtering by assetType alone (e.g. to list all packages). Supports multi-term search with '+' (e.g. 'red+car') and exact phrase with quotes (e.g. '\"red+car\"').",
+          "type": "string"
+        },
+        "scope": {
+          "description": "Where to search. 'auto' (default) waterfalls through all available sources. Use explicit scope to target a single source.",
+          "enum": [
+            "auto",
+            "creator_store",
+            "user",
+            "group",
+            "universe"
+          ],
+          "type": "string"
+        },
+        "tags": {
+          "description": "Tags to filter by (Creator Store only, ignored for inventory scopes). Tags are category labels like 'Vehicle', 'Airplane', 'Fantasy'.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "verifiedCreatorsOnly": {
+          "description": "Only return results from verified creators (Creator Store only).",
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "type": "object"
+    }
+  },
+  "insert_asset": {
+    "description": "Inserts an asset into the game by its numeric Roblox asset ID.\nUse this tool when you have a specific asset ID to insert directly, rather than searching the Creator Store.\nThe asset will be loaded, validated, and placed in the scene.\nAlways provide assetName when you know the name of the asset (e.g. from search results or user request). The inserted instance will be named using assetName \u2014 if omitted, it defaults to a generic name.\nSupports models, meshes, images/decals, audio, video, animations, and packages.\n",
+    "inputSchema": {
+      "properties": {
+        "assetId": {
+          "description": "Numeric Roblox asset ID to insert.",
+          "type": "string"
+        },
+        "assetName": {
+          "description": "Name for the inserted instance in the game tree. Always provide this when you know the asset name (e.g. from search_asset results). If omitted, defaults to a generic name.",
+          "type": "string"
+        },
+        "assetType": {
+          "description": "Asset type hint. If provided, skips the metadata API lookup and uses this type directly. Use when the caller already knows the asset type (e.g. from inventory search results). 'Image' and 'Decal' both insert as a Decal instance.",
+          "enum": [
+            "Model",
+            "Package",
+            "Mesh",
+            "MeshPart",
+            "Image",
+            "Decal",
+            "Audio",
+            "Video",
+            "Animation"
+          ],
+          "type": "string"
+        },
+        "parentPath": {
+          "description": "DataModel path to parent the asset under (e.g. game.Workspace.Folder1). Defaults to workspace.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "assetId"
+      ],
+      "type": "object"
+    }
+  }
+}
